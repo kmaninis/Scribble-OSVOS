@@ -21,12 +21,13 @@ host = 'localhost'  # 'localhost' for subsets train and val.
 # OSVOS parameters
 time_budget_per_object = 60
 parent_model = 'osvos_parent.pth'
+prev_mask = True  # Use previous mask as no-care area when fine-tuning
 
 save_model_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'models')
 report_save_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'results')
 save_result_dir = report_save_dir  # 'None' to not save the results
 
-model = OsvosScribble(parent_model, save_model_dir, gpu_id, time_budget_per_object)
+model = OsvosScribble(parent_model, save_model_dir, gpu_id, time_budget_per_object, save_result_dir=save_result_dir)
 davis = Davis(davis_root=Path.db_root_dir())
 
 seen_seq = {}
@@ -47,13 +48,10 @@ with DavisInteractiveSession(host='localhost', davis_root=Path.db_root_dir(), su
         print('\nRunning sequence {} in interaction {} and scribble iteration {}'
               .format(sequence, n_interaction, seen_seq[sequence]))
         for obj_id in range(1, n_objects+1):
-            model.train(first_frame, n_interaction, obj_id, scribbles, seen_seq[sequence])
-            pred_masks.append(model.test(sequence, n_interaction, obj_id, save_result_dir, seen_seq[sequence]))
+            model.train(first_frame, n_interaction, obj_id, scribbles, seen_seq[sequence], use_previous_mask=prev_mask)
+            pred_masks.append(model.test(sequence, n_interaction, obj_id, seen_seq[sequence]))
 
         final_masks = interactive_utils.mask.combine_masks(pred_masks)
 
         # Submit your prediction
         sess.submit_masks(final_masks)
-
-    # Get the result
-    report = sess.get_report()

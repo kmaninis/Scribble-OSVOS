@@ -19,9 +19,10 @@ from layers.osvos_layers import class_balanced_cross_entropy_loss
 
 
 class OsvosScribble(object):
-    def __init__(self, parent_model, save_model_dir, gpu_id, time_budget):
+    def __init__(self, parent_model, save_model_dir, gpu_id, time_budget, save_result_dir=None):
         self.save_model_dir = save_model_dir
         self.parent_model = parent_model
+        self.save_res_dir = save_result_dir
         self.net = vo.OSVOS(pretrained=0)
         if gpu_id >= 0:
             torch.cuda.set_device(device=gpu_id)
@@ -32,7 +33,7 @@ class OsvosScribble(object):
         self.train_batch = 4
         self.test_batch = 4
 
-    def train(self, first_frame, n_interaction, obj_id, scribbles_data, scribble_iter):
+    def train(self, first_frame, n_interaction, obj_id, scribbles_data, scribble_iter, use_previous_mask=False):
         print('Training Network for obj_id={}'.format(obj_id))
         nAveGrad = 1
         num_workers = 4
@@ -69,9 +70,12 @@ class OsvosScribble(object):
             {'params': self.net.fuse.bias, 'lr': 2 * lr / 100},
         ], lr=lr, momentum=0.9)
 
+        prev_mask_path = os.path.join(self.save_res_dir, 'interaction-{}'.format(n_interaction-1),
+                                      'scribble-{}'.format(scribble_iter))
         composed_transforms_tr = transforms.Compose([tr.SubtractMeanImage(self.meanval),
                                                      tr.CustomScribbleInteractive(scribbles_list, first_frame,
-                                                                                  use_previous_mask=False),
+                                                                                  use_previous_mask=use_previous_mask,
+                                                                                  previous_mask_path=prev_mask_path),
                                                      tr.RandomHorizontalFlip(),
                                                      tr.ScaleNRotate(rots=(-30, 30), scales=(.75, 1.25)),
                                                      tr.ToTensor()])
@@ -142,10 +146,10 @@ class OsvosScribble(object):
         stop_time = timeit.default_timer()
         print('Online training time: ' + str(stop_time - start_time))
 
-    def test(self,  sequence, n_interaction, obj_id, save_result_dir=None, scribble_iter=0):
+    def test(self,  sequence, n_interaction, obj_id, scribble_iter=0):
         save_dir = os.path.join(self.save_model_dir, sequence)
-        if save_result_dir:
-            save_dir_res = os.path.join(save_result_dir, 'interaction-{}'.format(n_interaction),
+        if self.save_res_dir:
+            save_dir_res = os.path.join(self.save_res_dir, 'interaction-{}'.format(n_interaction),
                                         'scribble-{}'.format(scribble_iter),
                                         sequence, str(obj_id))
             if not os.path.exists(save_dir_res):
@@ -182,7 +186,7 @@ class OsvosScribble(object):
                 pred = 1 / (1 + np.exp(-pred))
                 pred = np.squeeze(pred)
 
-                if save_result_dir:
+                if self.save_res_dir:
                     # Save the result, attention to the index jj
                     sm.imsave(os.path.join(save_dir_res, os.path.basename(meta['frame_id'][jj]) + '.png'), pred)
                 masks.append(pred)

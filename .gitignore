@@ -105,4 +105,5 @@ ENV/
 
 # Custom project
 *.pth
-results
+results/*
+!results/result_default_settings.csv
