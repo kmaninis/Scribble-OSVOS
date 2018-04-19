@@ -32,7 +32,7 @@ The code was tested with [Miniconda](https://conda.io/miniconda.html) and Python
 
 4. Modify any parameters in ``demo_interactive.py`` (for example the gpu_id).
 
-5. To run the interactive session (with the default parameters it takes 10 hours):
+5. To run the interactive session (with the default parameters it takes 10 hours on a Titan Xp):
     ```Shell
     python demo_interactive.py
     ```
