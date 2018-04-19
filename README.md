@@ -44,7 +44,7 @@ Enjoy!
 	@Inproceedings{Caelles_arXiv_2018,
 	  Title          = {The 2018 DAVIS Challenge on Video Object Segmentation},
 	  Author         = {Sergi Caelles and Alberto Montes and Kevis-Kokitsi Maninis and Yuhua Chen and Luc {Van Gool} and Federico Perazzi and Jordi Pont-Tuset},
-	  journal      = {arXiv:1803.00557},
+	  journal        = {arXiv:1803.00557},
 	  Year           = {2018}
 	}
 If you encounter any problems with the code, want to report bugs, etc. please open an issue or contact us at {kmaninis, scaelles}[at]vision[dot]ee[dot]ethz[dot]ch.
