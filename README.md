@@ -2,7 +2,7 @@
 
 This repository contains a baseline for the interactive track of the [DAVIS Challenge on Video Object Segmentation Wokshop](http://davischallenge.org/challenge2018/index.html) held in CVPR 2018.
 
-This PyTorch code is based on the original [OSVOS-Pytorch](https://github.com/kmaninis/OSVOS-PyTorch) implementation. It adapts the orignal [OSVOS](http://vision.ee.ethz.ch/~cvlsegmentation/osvos) to train only in scribbles instead of the full mask.
+This PyTorch code is based on the original [OSVOS-Pytorch](https://github.com/kmaninis/OSVOS-PyTorch) implementation. It adapts the orignal [OSVOS](http://vision.ee.ethz.ch/~cvlsegmentation/osvos) to train only on scribbles instead of the full mask.
 
 
 ### Installation:
@@ -16,7 +16,7 @@ The code was tested with [Miniconda](https://conda.io/miniconda.html) and Python
  
 1. Install dependencies:
     ```Shell
-    conda install pytorch=0.3.1 torchvision -c pytorch
+    conda install pytorch=0.3.1 torchvision -c pytorch  # 
     conda install matplotlib opencv pillow scikit-learn scikit-image
     ```
 3. Install the DAVIS interactive package following [these](http://interactive.davischallenge.org/user_guide/installation/) instructions ('PyPi Install' section), and download the scribbles ('DAVIS Dataset' section). 
@@ -32,7 +32,7 @@ The code was tested with [Miniconda](https://conda.io/miniconda.html) and Python
 
 4. Modify any parameters in ``demo_interactive.py`` (for example the gpu_id).
 
-5. To run the interactive session (with the default parameters it takes 10 hours on a Titan Xp):
+5. To run the interactive session (with the default parameters it takes ~10 hours on a Titan Xp):
     ```Shell
     python demo_interactive.py
     ```
