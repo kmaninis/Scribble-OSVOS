@@ -18,8 +18,8 @@ The code was tested with [Miniconda](https://conda.io/miniconda.html) and Python
     ```Shell
     conda install pytorch torchvision -c pytorch
     conda install matplotlib opencv pillow scikit-learn scikit-image
-    pip install davisinteractive
     ```
+3. Install DAVIS interactive, follow [this](http://interactive.davischallenge.org/user_guide/installation/) instructions.
   
 2. Download the model by running the script inside ```models/```:
     ```Shell
