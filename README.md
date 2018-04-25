@@ -16,10 +16,10 @@ The code was tested with [Miniconda](https://conda.io/miniconda.html) and Python
  
 1. Install dependencies:
     ```Shell
-    conda install pytorch torchvision -c pytorch
+    conda install pytorch=0.3.1 torchvision -c pytorch
     conda install matplotlib opencv pillow scikit-learn scikit-image
     ```
-3. Install the DAVIS interactive package, following [this](http://interactive.davischallenge.org/user_guide/installation/) instructions.
+3. Install the DAVIS interactive package following [these](http://interactive.davischallenge.org/user_guide/installation/) instructions ('PyPi Install' section), and download the scribbles ('DAVIS Dataset' section). 
   
 2. Download the model by running the script inside ```models/```:
     ```Shell
@@ -36,7 +36,7 @@ The code was tested with [Miniconda](https://conda.io/miniconda.html) and Python
     ```Shell
     python demo_interactive.py
     ```
-6. A CSV report with all the metrics will be generated in ``results``.
+6. A CSV report with all the metrics will be generated in ``results``. The expected output after running all sequences can be found at `results/result_default_settings.csv`. `analyze_report.py` will generate an overall report of the results.
 
 Enjoy!
 
