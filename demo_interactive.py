@@ -47,8 +47,8 @@ with DavisInteractiveSession(host='localhost', davis_root=Path.db_root_dir(), su
         print('\nRunning sequence {} in interaction {} and scribble iteration {}'
               .format(sequence, n_interaction, seen_seq[sequence]))
         for obj_id in range(1, n_objects+1):
-            model.train(first_frame, n_interaction, obj_id, scribbles, seen_seq[sequence], use_previous_mask=prev_mask)
-            pred_masks.append(model.test(sequence, n_interaction, obj_id, seen_seq[sequence]))
+            model.train(first_frame, n_interaction, obj_id, scribbles, seen_seq[sequence], subset=subset, use_previous_mask=prev_mask)
+            pred_masks.append(model.test(sequence, n_interaction, obj_id, subset=subset, scribble_iter=seen_seq[sequence]))
 
         final_masks = interactive_utils.mask.combine_masks(pred_masks)
 
