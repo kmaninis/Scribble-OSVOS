@@ -28,7 +28,6 @@ report_save_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'res
 save_result_dir = report_save_dir  # 'None' to not save the results
 
 model = OsvosScribble(parent_model, save_model_dir, gpu_id, time_budget_per_object, save_result_dir=save_result_dir)
-davis = Davis(davis_root=Path.db_root_dir())
 
 seen_seq = {}
 with DavisInteractiveSession(host='localhost', davis_root=Path.db_root_dir(), subset=subset,
@@ -39,7 +38,7 @@ with DavisInteractiveSession(host='localhost', davis_root=Path.db_root_dir(), su
         sequence, scribbles, first_scribble = sess.get_scribbles()
         if first_scribble:
             n_interaction = 1
-            n_objects = davis.dataset['sequences'][sequence]['num_objects']
+            n_objects = Davis.dataset[sequence]['num_objects']
             first_frame = interactive_utils.scribbles.annotated_frames(scribbles)[0]
             seen_seq[sequence] = 1 if sequence not in seen_seq.keys() else seen_seq[sequence]+1
         else:
