@@ -33,7 +33,7 @@ class OsvosScribble(object):
         self.train_batch = 4
         self.test_batch = 4
 
-    def train(self, first_frame, n_interaction, obj_id, scribbles_data, scribble_iter, use_previous_mask=False):
+    def train(self, first_frame, n_interaction, obj_id, scribbles_data, scribble_iter, subset, use_previous_mask=False):
         print('Training Network for obj_id={}'.format(obj_id))
         nAveGrad = 1
         num_workers = 4
@@ -80,9 +80,9 @@ class OsvosScribble(object):
                                                      tr.ScaleNRotate(rots=(-30, 30), scales=(.75, 1.25)),
                                                      tr.ToTensor()])
         # Training dataset and its iterator
-        db_train = db.DAVIS2017(split='val', transform=composed_transforms_tr,
+        db_train = db.DAVIS2017(split=subset, transform=composed_transforms_tr,
                                 custom_frames=frames_list, seq_name=seq_name,
-                                obj_id=obj_id, retname=True)
+                                obj_id=obj_id, no_gt=True, retname=True)
         trainloader = DataLoader(db_train, batch_size=train_batch, shuffle=True, num_workers=num_workers)
         num_img_tr = len(trainloader)
         loss_tr = []
@@ -146,7 +146,7 @@ class OsvosScribble(object):
         stop_time = timeit.default_timer()
         print('Online training time: ' + str(stop_time - start_time))
 
-    def test(self,  sequence, n_interaction, obj_id, scribble_iter=0):
+    def test(self,  sequence, n_interaction, obj_id, subset, scribble_iter=0):
         save_dir = os.path.join(self.save_model_dir, sequence)
         if self.save_res_dir:
             save_dir_res = os.path.join(self.save_res_dir, 'interaction-{}'.format(n_interaction),
@@ -159,7 +159,7 @@ class OsvosScribble(object):
                                                      tr.ToTensor()])
 
         # Testing dataset and its iterator
-        db_test = db.DAVIS2017(split='val', transform=composed_transforms_ts, seq_name=sequence, retname=True)
+        db_test = db.DAVIS2017(split=subset, transform=composed_transforms_ts, seq_name=sequence, no_gt=True, retname=True)
         testloader = DataLoader(db_test, batch_size=self.test_batch, shuffle=False, num_workers=2)
 
         print('Testing Network for obj_id={}'.format(obj_id))

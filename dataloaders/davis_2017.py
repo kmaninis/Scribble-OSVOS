@@ -85,11 +85,17 @@ class DAVIS2017(Dataset):
                     frames_ids = list(np.round(frame_vector*seq_len/float(num_frames)).astype(np.int))
                     frames_ids[-1] = min(frames_ids[-1], seq_len)
                     images_path = [images_path[x] for x in frames_ids]
-                    lab_path = [lab_path[x] for x in frames_ids]
+                    if no_gt:
+                        lab_path = [None] * len(images_path)
+                    else:
+                        lab_path = [lab_path[x] for x in frames_ids]
                 elif isinstance(custom_frames, tuple) or isinstance(custom_frames, list):
                     assert min(custom_frames) >= 0 and max(custom_frames) <= len(images_path)
                     images_path = [images_path[x] for x in custom_frames]
-                    lab_path = [lab_path[x] for x in custom_frames]
+                    if no_gt:
+                        lab_path = [None] * len(images_path)
+                    else:
+                        lab_path = [lab_path[x] for x in custom_frames]
                 if gt_only_first_frame:
                     lab_path = [lab_path[0]]
                     lab_path.extend([None] * (len(images_path) - 1))
@@ -123,11 +129,17 @@ class DAVIS2017(Dataset):
                 frames_ids = list(np.round(frame_vector * seq_len / float(num_frames)).astype(np.int))
                 frames_ids[-1] = min(frames_ids[-1], seq_len)
                 img_list = [img_list[x] for x in frames_ids]
-                labels = [labels[x] for x in frames_ids]
+                if no_gt:
+                    labels = [None] * len(img_list)
+                else:
+                    labels = [labels[x] for x in frames_ids]
             elif isinstance(custom_frames, tuple) or isinstance(custom_frames, list):
                 assert min(custom_frames) >= 0 and max(custom_frames) <= len(img_list)
                 img_list = [img_list[x] for x in custom_frames]
-                labels = [labels[x] for x in custom_frames]
+                if no_gt:
+                    labels = [None] * len(img_list)
+                else:
+                    labels = [labels[x] for x in custom_frames]
             if gt_only_first_frame:
                 labels = [labels[0]]
                 labels.extend([None]*(len(img_list)-1))
@@ -173,7 +185,7 @@ class DAVIS2017(Dataset):
             _mask_ids = np.unique(_mask)
             n_obj = _mask_ids[-1]
 
-            self.seq_dict[seq] = range(1, n_obj+1)
+            self.seq_dict[seq] = list(range(1, n_obj+1))
 
         with open(self.seq_list_file, 'w') as outfile:
             outfile.write('{{\n\t"{:s}": {:s}'.format(self.seqs[0], json.dumps(self.seq_dict[self.seqs[0]])))
