@@ -1,6 +1,6 @@
 # Scribble-OSVOS
 
-This repository contains a baseline for the interactive track of the [DAVIS Challenge on Video Object Segmentation Wokshop](http://davischallenge.org/challenge2018/index.html) held in CVPR 2018.
+This repository contains a baseline for the interactive track of the [DAVIS Challenge on Video Object Segmentation Wokshop](http://davischallenge.org/challenge2019/index.html) held in CVPR 2018.
 
 This PyTorch code is based on the original [OSVOS-Pytorch](https://github.com/kmaninis/OSVOS-PyTorch) implementation. It adapts the orignal [OSVOS](http://vision.ee.ethz.ch/~cvlsegmentation/osvos) to train only on scribbles instead of the full mask.
 
