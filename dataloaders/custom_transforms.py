@@ -127,7 +127,7 @@ class CustomScribbleInteractive(object):
                  nocare_area=None,
                  bresenham=True,
                  use_previous_mask=False,
-                 previous_mask_path='/media/eec/external/Databases/Segmentation/DAVIS-2017/Results/OSVOS-scribble-180-1'):
+                 previous_mask_path=None):
 
         self.scribbles = scribbles
         self.dilation = dilation
@@ -203,22 +203,6 @@ class CustomScribbleInteractive(object):
 
         sample['scribble_gt'] = scr_gt
         sample['scribble_void_pixels'] = scr_nocare
-        # from matplotlib import pyplot as plt
-        # f, ax_arr = plt.subplots(2, 2)
-        # ax_arr[0, 0].cla()
-        # ax_arr[0, 1].cla()
-        # ax_arr[1, 0].cla()
-        # ax_arr[1, 1].cla()
-        # ax_arr[0, 0].set_title("Input Image")
-        # ax_arr[0, 1].set_title("Ground Truth")
-        # ax_arr[1, 0].set_title("Nocare")
-        # ax_arr[1, 1].set_title("Negative")
-        # ax_arr[0, 0].imshow((sample['image'][:, :, ::-1] - sample['image'].min()) / (sample['image'].max() - sample['image'].min()))
-        # ax_arr[0, 1].imshow(scr_gt)
-        # ax_arr[1, 0].imshow(scr_nocare)
-        # ax_arr[1, 1].imshow(scr_gt_neg)
-        # plt.show()
-        # plt.close('all')
 
         return sample
 

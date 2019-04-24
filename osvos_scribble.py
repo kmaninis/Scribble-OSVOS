@@ -1,5 +1,6 @@
 import os
 import timeit
+import copy
 
 import torch
 import torch.optim as optim
@@ -18,7 +19,7 @@ from dataloaders import custom_transforms as tr
 from layers.osvos_layers import class_balanced_cross_entropy_loss
 
 
-class OsvosScribble(object):
+class OSVOSScribble(object):
     def __init__(self, parent_model, save_model_dir, gpu_id, time_budget, save_result_dir=None):
         self.save_model_dir = save_model_dir
         self.parent_model = parent_model
@@ -32,9 +33,11 @@ class OsvosScribble(object):
         self.meanval = (104.00699, 116.66877, 122.67892)
         self.train_batch = 4
         self.test_batch = 4
+        self.prev_models = {}
+        self.parent_model_state = torch.load(os.path.join(Path.models_dir(), self.parent_model),
+                                             map_location=lambda storage, loc: storage)
 
     def train(self, first_frame, n_interaction, obj_id, scribbles_data, scribble_iter, subset, use_previous_mask=False):
-        print('Training Network for obj_id={}'.format(obj_id))
         nAveGrad = 1
         num_workers = 4
         train_batch = min(n_interaction, self.train_batch)
@@ -43,20 +46,19 @@ class OsvosScribble(object):
         scribbles_list = scribbles_data['scribbles']
         seq_name = scribbles_data['sequence']
 
+        if obj_id == 1 and n_interaction == 1:
+            self.prev_models = {}
+
         # Network definition
-        save_dir = os.path.join(self.save_model_dir, seq_name)
-        if not os.path.exists(save_dir):
-            os.makedirs(os.path.join(save_dir))
         if n_interaction == 1:
             print('Loading weights from: {}'.format(self.parent_model))
-            self.net.load_state_dict(torch.load(os.path.join(Path.models_dir(), self.parent_model),
-                                                map_location=lambda storage, loc: storage))
+            self.net.load_state_dict(self.parent_model_state)
+            self.prev_models[obj_id] = None
         else:
             print('Loading weights from previous network: objId-{}_interaction-{}_scribble-{}.pth'
                   .format(obj_id, n_interaction-1, scribble_iter))
-            self.net.load_state_dict(torch.load(os.path.join(save_dir, 'objId-{}_interaction-{}_scribble-{}.pth'
-                                                             .format(obj_id, n_interaction-1, scribble_iter)),
-                                                map_location=lambda storage, loc: storage))
+            self.net.load_state_dict(self.prev_models[obj_id])
+
         lr = 1e-8
         wd = 0.0002
         optimizer = optim.SGD([
@@ -88,8 +90,6 @@ class OsvosScribble(object):
         loss_tr = []
         aveGrad = 0
 
-        # print("Start of Online Training, sequence: " + seq_name)
-        # iter_start_time = timeit.default_timer()
         start_time = timeit.default_timer()
         # Main Training and Testing Loop
         epoch = 0
@@ -132,22 +132,16 @@ class OsvosScribble(object):
                     optimizer.step()
                     optimizer.zero_grad()
                     aveGrad = 0
-            # iter_stop_time = timeit.default_timer()
-            # print("Iteration timing: {} seconds".format(str(iter_stop_time - iter_start_time)))
+
             epoch += train_batch
             stop_time = timeit.default_timer()
-            # iter_start_time = timeit.default_timer()
             if stop_time - start_time > self.time_budget:
                 break
 
-        # Save the model
-        torch.save(self.net.state_dict(), os.path.join(save_dir, 'objId-{}_interaction-{}_scribble-{}.pth'
-                                                       .format(obj_id, n_interaction, scribble_iter)))
-        stop_time = timeit.default_timer()
-        print('Online training time: ' + str(stop_time - start_time))
+        # Save the model into dictionary
+        self.prev_models[obj_id] = copy.deepcopy(self.net.state_dict())
 
     def test(self,  sequence, n_interaction, obj_id, subset, scribble_iter=0):
-        save_dir = os.path.join(self.save_model_dir, sequence)
         if self.save_res_dir:
             save_dir_res = os.path.join(self.save_res_dir, 'interaction-{}'.format(n_interaction),
                                         'scribble-{}'.format(scribble_iter),
@@ -165,9 +159,7 @@ class OsvosScribble(object):
         print('Testing Network for obj_id={}'.format(obj_id))
         print('Loading weights from objId-{}_interaction-{}_scribble-{}.pth'
               .format(obj_id, n_interaction, scribble_iter))
-        self.net.load_state_dict(torch.load(os.path.join(save_dir, 'objId-{}_interaction-{}_scribble-{}.pth'
-                                                         .format(obj_id, n_interaction, scribble_iter)),
-                                            map_location=lambda storage, loc: storage))
+
         # Main Testing Loop
         masks = []
         for ii, sample_batched in enumerate(testloader):
@@ -179,10 +171,10 @@ class OsvosScribble(object):
             if self.gpu_id >= 0:
                 inputs, gts = inputs.cuda(), gts.cuda()
 
-            outputs = self.net.forward(inputs)
+            outputs = self.net.forward(inputs)[-1].cpu().data.numpy()
 
             for jj in range(int(inputs.size()[0])):
-                pred = np.transpose(outputs[-1].cpu().data.numpy()[jj, :, :, :], (1, 2, 0))
+                pred = np.transpose(outputs[jj, :, :, :], (1, 2, 0))
                 pred = 1 / (1 + np.exp(-pred))
                 pred = np.squeeze(pred)
 

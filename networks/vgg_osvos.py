@@ -74,21 +74,6 @@ class OSVOS(nn.Module):
         return side_out
 
     def _initialize_weights(self, pretrained):
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                m.weight.data.normal_(0, 0.001)
-                if m.bias is not None:
-                    m.bias.data.zero_()
-            elif isinstance(m, nn.BatchNorm2d):
-                m.weight.data.fill_(1)
-                m.bias.data.zero_()
-            elif isinstance(m, nn.Linear):
-                m.weight.data.normal_(0, 0.01)
-                m.bias.data.zero_()
-            elif isinstance(m, nn.ConvTranspose2d):
-                m.weight.data.zero_()
-                m.weight.data = interp_surgery(m)
-
         if pretrained == 1:
             print("Loading weights from PyTorch VGG")
             vgg_structure = [64, 64, 'M', 128, 128, 'M', 256, 256, 256,
@@ -123,6 +108,21 @@ class OSVOS(nn.Module):
                     assert (layer.data.shape == c_b.shape)
                     layer.data = c_b
                     caffe_ind += 1
+        else:
+            for m in self.modules():
+                if isinstance(m, nn.Conv2d):
+                    m.weight.data.normal_(0, 0.001)
+                    if m.bias is not None:
+                        m.bias.data.zero_()
+                elif isinstance(m, nn.BatchNorm2d):
+                    m.weight.data.fill_(1)
+                    m.bias.data.zero_()
+                elif isinstance(m, nn.Linear):
+                    m.weight.data.normal_(0, 0.01)
+                    m.bias.data.zero_()
+                elif isinstance(m, nn.ConvTranspose2d):
+                    m.weight.data.zero_()
+                    m.weight.data = interp_surgery(m)
 
 
 def find_conv_layers(_vgg):

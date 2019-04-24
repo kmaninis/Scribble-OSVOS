@@ -1,11 +1,11 @@
 class Path(object):
     @staticmethod
     def db_root_dir():
-        return '/path/to/DAVIS2017'
+        return '/path/to/DAVIS'
 
     @staticmethod
     def save_root_dir():
-        return './models'
+        return './results'
 
     @staticmethod
     def models_dir():
