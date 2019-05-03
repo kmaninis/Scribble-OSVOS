@@ -16,13 +16,13 @@ def main():
 
     print('AUC: \t{:.3f}'.format(summary['auc']))
     th = summary['metric_at_threshold']['threshold']
-    jac = summary['metric_at_threshold'][metric]
-    print('J@{}: \t{:.3f}'.format(th, jac))
+    met = summary['metric_at_threshold'][metric]
+    print('{}@{}: \t{:.3f}'.format(METRIC_TXT[metric], th, met))
 
     time = summary['curve']['time']
-    jaccard = summary['curve'][metric]
+    metric_res = summary['curve'][metric]
 
-    plt.plot(time, jaccard)
+    plt.plot(time, metric_res)
     plt.ylim([0, 1])
     plt.xlim([0, max(time)])
     plt.xlabel('Accumulated Time (s)')
