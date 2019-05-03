@@ -12,7 +12,7 @@ from mypath import Path
 
 def main():
     # General parameters
-    gpu_id = 1
+    gpu_id = 0
 
     # Configuration used in the challenges
     max_nb_interactions = 8  # Maximum number of interactions
